@@ -5,15 +5,19 @@ import { USD, KHR } from "@dinero.js/currencies";
 import { computed } from "@vue/reactivity";
 
 const currencies = [USD, KHR];
-const currenciesMap = Object.fromEntries(
+const CURRENCIES_MAP = Object.fromEntries(
   currencies.map((item) => [item.code, item])
 );
 
+// refs
 const amount = ref(0);
 const scale = ref(2);
-const currency = ref("USD");
-const selectedCurrency = computed(() => currenciesMap[currency.value]);
+const currency = ref(USD.code);
 
+// computed
+const selectedCurrency = computed(() => CURRENCIES_MAP[currency.value]);
+
+// add decimal place
 const normalizedAmount = computed(() => Math.floor(amount.value * 100));
 
 const encodedAmount = computed(() =>
@@ -24,13 +28,8 @@ const encodedAmount = computed(() =>
   })
 );
 
-const snapshot = computed(() =>
-  JSON.stringify(toSnapshot(encodedAmount.value), null, 2)
-);
-
-const formattedAmount = computed(() =>
-  toFormat(encodedAmount.value, (v) => `${v.currency.code} ${v.amount}`)
-);
+const snapshot = computed(() => JSON.stringify(toSnapshot(encodedAmount.value), null, 2));
+const formattedAmount = computed(() =>toFormat(encodedAmount.value, (v) => `${v.currency.code} ${v.amount}`));
 </script>
 
 <template>
@@ -46,14 +45,14 @@ const formattedAmount = computed(() =>
       placeholder="amount"
     />
 
-    <label for="currency"
-      >Currency <code>{{ selectedCurrency }}</code></label
-    >
+    <label for="currency">Currency</label>   
     <select v-model="currency" id="currency" name="currency">
       <option v-for="item in currencies" :value="item.code" :key="item.code">
         {{ item.code }}
       </option>
     </select>
+
+    <pre>{{ selectedCurrency }}</pre>
 
     <label for="scale">Scale</label>
     <input
@@ -67,6 +66,8 @@ const formattedAmount = computed(() =>
       Formatted value: <strong>{{ formattedAmount }}</strong>
     </h4>
     <pre>{{ snapshot }}</pre>
+    <hr>
+    <a target="_blank" href="https://github.com/seanghay/dinero-playground"><small>View on GitHub</small></a>
   </div>
 </template>
 
